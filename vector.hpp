@@ -6,7 +6,7 @@
 /*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/09 07:55:20 by user42            #+#    #+#             */
-/*   Updated: 2021/03/31 13:39:36 by user42           ###   ########.fr       */
+/*   Updated: 2021/04/22 10:49:42 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <cstdio>
 # include <memory>
+# include "utils.hpp"
 
 # if ((ULONG_MAX) == (UINT_MAX))
 #  define nativePointerBitWidth 32
@@ -80,6 +81,9 @@ class vector_iterator
 		{return (vector_iterator(_data - sub));}
 		difference_type operator-(vector_iterator obj)
 		{return _data - obj._data;}
+
+		static const bool input_iter = true;
+
 };
 
 #include "revers.hpp"
@@ -99,7 +103,7 @@ class vector
 		typedef reverse_iterator<const_iterator>	const_reverse_iterator;
 		typedef reverse_iterator<iterator>			reverse_iterator;
 		typedef typename std::ptrdiff_t				difference_type;
-		typedef unsigned int						size_type;
+		typedef typename allocator::size_type		size_type;
 	
 	private :
 		typedef vector<T> self;
@@ -110,20 +114,20 @@ class vector
 		size_type		_cap;
 
 	public :
-		explicit vector(const allocator &alloc = allocator()) : _alloc(alloc), _arr(0), _len(0), _cap(0) {std::cout << "1\n";}
+		explicit vector(const allocator &alloc = allocator()) : _alloc(alloc), _arr(0), _len(0), _cap(0) {}
 
 		explicit vector(size_type count, const value_type &val = value_type(), const allocator &alloc = allocator())
 			: _alloc(alloc), _arr(0), _len(0), _cap(0)
-		{std::cout << "2\n"; insert(begin(), count, val);}
+		{insert(begin(), count, val);}
 
 		template<class it_type>
 		vector(it_type first, it_type last, const allocator &alloc = allocator())
 			: _alloc(alloc), _arr(0), _len(0), _cap(0)
-		{std::cout << "3\n";insert(begin(), first, last);}
+		{insert(begin(), first, last);}
 
 		vector(const self &to_copy)
 			: _alloc(to_copy._alloc), _arr(0), _len(0), _cap(0)
-		{std::cout << "4\n";insert(begin(), to_copy.begin(), to_copy.end());}
+		{insert(begin(), to_copy.begin(), to_copy.end());}
 		
 		~vector()
 		{	
@@ -134,6 +138,7 @@ class vector
 
 		self &operator=(const self& to_copy)
 		{
+			clear();
 			insert(begin(), to_copy.begin(), to_copy.end());
 			return *this;
 		}
@@ -151,16 +156,16 @@ class vector
 		{return _arr + _len;}
 
 		reverse_iterator rbegin()
-		{return _arr;}
+		{return _arr + _len - 1;}
 
 		const_reverse_iterator rbegin() const
-		{return _arr;}
+		{return _arr + _len - 1;}
 		
 		reverse_iterator rend()
-		{return _arr + _len;}
+		{return _arr - 1;}
 
 		const_reverse_iterator rend() const
-		{return _arr + _len;}
+		{return _arr - 1;}
 
 		size_type size() const
 		{return _len;}
@@ -269,7 +274,7 @@ class vector
 				_cap = (_cap == 0) ? 1 : _cap * 2;
 				pointer tmp;
 				tmp = new value_type[_cap];
-				for(int i = 0; i < _len; i++)
+				for(size_type i = 0; i < _len; i++)
 					tmp[i] = _arr[i];
 				delete [] _arr;
 				_arr = tmp;
@@ -374,15 +379,17 @@ class vector
 				int i = 0;
 				while(it != position)
 					tmp[i++] = *(it++);
-				while(first != last)
-					tmp[i++] = *(first++);
+				for(; first != last; first++)
+					tmp[i++] = *first;
 				while(it != end())
 					tmp[i++] = *(it++);
 				delete [] _arr;
 				_arr = tmp;
+				_len = i;
 			}
-			else
+			else if (last - first != 0)
 			{
+				_len += last - first;
 				it = end() - 1;
 				while(it != position)
 				{
@@ -390,10 +397,9 @@ class vector
 					it--;
 				}
 				*(it + (last - first)) = *it;
-				while(first != last)
-					*(it++) = *(first++);
+				for(; first != last; first++)
+					*(it++) = *first;
 			}
-			_len += (last - first);
 		}
 
 		iterator erase(iterator position)
