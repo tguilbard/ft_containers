@@ -6,7 +6,7 @@
 /*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/09 07:55:20 by user42            #+#    #+#             */
-/*   Updated: 2021/04/22 10:49:42 by user42           ###   ########.fr       */
+/*   Updated: 2021/04/23 10:14:05 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,6 @@ class vector_iterator
 		difference_type operator-(vector_iterator obj)
 		{return _data - obj._data;}
 
-		static const bool input_iter = true;
-
 };
 
 #include "revers.hpp"
@@ -121,7 +119,7 @@ class vector
 		{insert(begin(), count, val);}
 
 		template<class it_type>
-		vector(it_type first, it_type last, const allocator &alloc = allocator())
+		vector(it_type first, it_type last, const allocator &alloc = allocator(), typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = NULL)
 			: _alloc(alloc), _arr(0), _len(0), _cap(0)
 		{insert(begin(), first, last);}
 
@@ -133,7 +131,7 @@ class vector
 		{	
 			clear();
 			if (_cap)
-				delete [] _arr;
+				_alloc.deallocate(_arr, _cap);
 		}
 
 		self &operator=(const self& to_copy)
@@ -171,7 +169,7 @@ class vector
 		{return _len;}
 
 		size_type max_size() const
-		{return (2^nativePointerBitWidth)/sizeof(value_type) - 1;}
+		{return allocator_type().max_size();}
 
 		void resize(size_type n, value_type val = value_type())
 		{
@@ -193,21 +191,21 @@ class vector
 			{
 				if (_cap == 0)
 				{
-					_cap = 1;
-					while (_cap < n)
-						_cap *= 2;
-					_arr = new value_type[_cap];
+					_cap = n;
+					_arr = _alloc.allocate(_cap);
 				}
 				else
 				{
-					while (_cap < n)
-						_cap *= 2;
+					size_type new_cap;
+
+					new_cap = n;
 					pointer tmp;
-					tmp = new value_type[_cap];
-					for(int i = 0; i < _len; i++)
+					tmp = _alloc.allocate(new_cap);
+					for(size_type i = 0; i < _len; i++)
 						tmp[i] = _arr[i];
-					delete [] _arr;
+					_alloc.deallocate(_arr, _cap);
 					_arr = tmp;
+					_cap = new_cap;
 				}
 			}
 		}
@@ -220,8 +218,9 @@ class vector
 
 		reference at(size_type n)
 		{
-			if (n < _len)
-				return *(_arr + n);
+			if (n > _len)
+				throw "out of bound";
+			return *(_arr + n);
 		}
 
 		const_reference at(size_type n) const
@@ -243,27 +242,35 @@ class vector
 		{return *(_arr + _len - 1);}
 
 		template<class it_type>
-		void assign(it_type first, it_type last)
+		void assign(it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = NULL)
 		{
-			_cap = (_cap == 0) ? 1 : _cap;
-			while(last - first > _cap)
-				_cap *= 2;
-			~vector();
-			_arr = new value_type[_cap];
+			size_type new_cap;
+
+			new_cap = (_cap == 0) ? 1 : _cap;
+			while((size_type)(last - first) > new_cap)
+				new_cap *= 2;
+			clear();
+			_alloc.deallocate(_arr, _cap);
+			_arr = _alloc.allocate(new_cap);
+			_cap = new_cap;
 			_len = last - first;
-			for(int i = 0; i < _len; i++)
+			for(size_type i = 0; i < _len; i++)
 				_arr[i] = *(first + i);
 		}
 
 		void assign(size_type n, const value_type& val)
 		{
-			_cap = (_cap == 0) ? 1 : _cap;
-			while(n > _cap)
-				_cap *= 2;
-			~vector();
-			_arr = new value_type[_cap];
+			size_type new_cap;
+
+			new_cap = (_cap == 0) ? 1 : _cap;
+			while(n > new_cap)
+				new_cap *= 2;
+			clear();
+			_alloc.deallocate(_arr, _cap);
+			_arr = _alloc.allocate(new_cap);
+			_cap = new_cap;
 			_len = n;
-			for(int i = 0; i < _len; i++)
+			for(size_type i = 0; i < _len; i++)
 				_arr[i] = val;
 		}
 
@@ -271,13 +278,16 @@ class vector
 		{
 			if (_len >= _cap)
 			{
-				_cap = (_cap == 0) ? 1 : _cap * 2;
+				size_type new_cap;
+
+				new_cap = (_cap == 0) ? 1 : _cap * 2;
 				pointer tmp;
-				tmp = new value_type[_cap];
+				tmp = _alloc.allocate(new_cap);
 				for(size_type i = 0; i < _len; i++)
 					tmp[i] = _arr[i];
-				delete [] _arr;
+				_alloc.deallocate(_arr, _cap);
 				_arr = tmp;
+				_cap = new_cap;
 			}
 			_arr[_len] = val; 
 			_len++;
@@ -295,12 +305,13 @@ class vector
 		iterator insert(iterator position, const value_type &val)
 		{
 			iterator it;
+			size_type new_cap;
 
 			if (_len >= _cap)
 			{
-				_cap = (_cap == 0) ? 1 : _cap * 2;
+				new_cap = (_cap == 0) ? 1 : _cap * 2;
 				pointer tmp;
-				tmp = new value_type[_cap];
+				tmp =  _alloc.allocate(new_cap);
 				it = begin();
 				int i = 0;
 				while(it != position)
@@ -308,17 +319,14 @@ class vector
 				tmp[i++] = val;
 				while(it != end())
 					tmp[i++] = *(it++);
-				delete [] _arr;
+				_alloc.deallocate(_arr, _cap);
 				_arr = tmp;
+				_cap = new_cap;
 			}
 			else
 			{
-				it = end() - 1;
-				while(it != position)
-				{
+				for(it = end(); it != position; it--)
 					*(it + 1) = *it;
-					it--;
-				}
 				*(it + 1) = *it;
 				*it = val;
 			}
@@ -330,33 +338,31 @@ class vector
 		{
 			iterator it;
 			size_type i;
+			size_type new_cap;
 
 			if (_len + n > _cap)
 			{
-				_cap = (_cap == 0) ? 1 : _cap * 2;
-				while (_len + n > _cap)
-					_cap *= 2;
+				new_cap = (_cap == 0) ? 1 : _cap * 2;
+				while (_len + n > new_cap)
+					new_cap *= 2;
 				pointer tmp;
-				tmp = new value_type[_cap];
+				tmp =  _alloc.allocate(new_cap);
 				it = begin();
 				i = 0;
-				while(it != position)
-					tmp[i++] = *(it++);
+				for(it = begin(); it != position; it++)
+					tmp[i++] = *it;
 				for(size_type j = 0; j < n; j++)
 					tmp[i++] = val;
-				while(it != end())
-					tmp[i++] = *(it++);
-				delete [] _arr;
+				for(; it != end(); it++)
+					tmp[i++] = *it;
+				_alloc.deallocate(_arr, _cap);
 				_arr = tmp;
+				_cap = new_cap;
 			}
 			else
 			{
-				it = end() - 1;
-				while(it != position)
-				{
+				for(it = end(); it > position; it--)
 					*(it + n) = *it;
-					it--;
-				}
 				*(it + n) = *it;
 				for(i = 0; i < n; i++)
 					*(it + i) = val;
@@ -365,78 +371,92 @@ class vector
 		}
 
 		template<class it_type>
-		void insert(iterator position, it_type first, it_type last)
+		void insert(iterator position, it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = NULL)
 		{
 			iterator it;
+			size_type new_cap;
+
 			if (last - first + _len > _cap)
 			{
-				_cap = (_cap == 0) ? 1 : _cap * 2;
-				while (last - first + _len > _cap)
-					_cap *= 2;
+				new_cap = (_cap == 0) ? 1 : _cap * 2;
+				while (last - first  + _len > new_cap)
+					new_cap *= 2;
 				pointer tmp;
-				tmp = new value_type[_cap];
-				it = begin();
+				tmp =  _alloc.allocate(new_cap);
 				int i = 0;
-				while(it != position)
-					tmp[i++] = *(it++);
+				for(it = begin(); it != position; it++)
+					tmp[i++] = *(it);
 				for(; first != last; first++)
 					tmp[i++] = *first;
-				while(it != end())
-					tmp[i++] = *(it++);
-				delete [] _arr;
+				for(; it != end(); it++)
+					tmp[i++] = *it;
+				_alloc.deallocate(_arr, _cap);
 				_arr = tmp;
+				_cap = new_cap;
 				_len = i;
 			}
 			else if (last - first != 0)
 			{
-				_len += last - first;
-				it = end() - 1;
-				while(it != position)
-				{
+				for(it = end(); it >= position; it--)
 					*(it + (last - first)) = *it;
-					it--;
-				}
-				*(it + (last - first)) = *it;
 				for(; first != last; first++)
 					*(it++) = *first;
+				_len += last - first;
 			}
 		}
 
 		iterator erase(iterator position)
 		{
-			iterator tmp = position;
-
+			pointer p_pos = &(*position);
 			_alloc.destroy(&(*position));
-			while(tmp != end())
+			if (position + 1 == end())
+				_alloc.destroy(&(*position));
+			else
 			{
-				tmp = tmp + 1;
-				tmp++;
+				for (int i = 0; i < end() - &(*position) - 1; i++)
+				{
+					_alloc.construct(&(*position) + i, *(&(*position) + i + 1));
+					_alloc.destroy(&(*position) + i + 1);
+				}
 			}
 			_len--;
-			return (position);
+			return (iterator(p_pos));
 		}
 
 		iterator erase(iterator first, iterator last)
 		{
-			iterator tmp = first;
+			pointer p_first = &(*first);
 
-			while(tmp != last)
-				_alloc.destroy(&(*(tmp++)));
-			tmp  = first;
-			while(tmp != end())
+			for (; &(*first) != &(*last); first++)
+				_alloc.destroy(&(*first));
+			for (int i = 0; i < end() - &(*last); i++)
 			{
-				tmp = tmp + (last - first);
-				tmp++;
+				_alloc.construct(p_first + i, *(&(*last) + i));
+				_alloc.destroy(&(*last) + i);
 			}
-			_len -= (last - first);
-			return (first);
+			_len -= (last - p_first);
+			return (p_first);
 		}
 
 		void swap(vector& x)
 		{
-			vector tmp(*this);
-			*this(x);
-			x(tmp);
+			if (x == *this)
+				return;
+				
+			pointer tmp_arr = x._arr;
+			size_type tmp_len = x._len;
+			size_type tmp_cap = x._cap;
+			allocator_type tmp_alloc = x._alloc;
+
+			x._arr = _arr;
+			x._len = _len;
+			x._cap = _cap;
+			x._alloc = _alloc;
+
+			this->_arr = tmp_arr;
+			this->_len = tmp_len;
+			this->_cap = tmp_cap;
+			this->_alloc = tmp_alloc;
 		}
 
 		void clear()
@@ -502,4 +522,9 @@ bool operator>=(const vector<T, alloc>& lhs, const vector<T, alloc>& rhs)
 	return !(lhs < rhs);
 }
 
+template <class T, class Alloc>
+void swap(vector<T,Alloc>& x, vector<T,Alloc>& y)
+{
+	x.swap(y);
+}
 #endif
