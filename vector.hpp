@@ -6,22 +6,15 @@
 /*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/09 07:55:20 by user42            #+#    #+#             */
-/*   Updated: 2021/04/23 10:14:05 by user42           ###   ########.fr       */
+/*   Updated: 2021/04/26 17:20:38 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
 
-# include <cstdio>
 # include <memory>
 # include "utils.hpp"
-
-# if ((ULONG_MAX) == (UINT_MAX))
-#  define nativePointerBitWidth 32
-# else
-#  define nativePointerBitWidth 64
-# endif
 
 template<typename T, class allocator =std::allocator<T> >
 class vector;
@@ -84,7 +77,7 @@ class vector_iterator
 
 };
 
-#include "revers.hpp"
+# include "revers.hpp"
 
 template<typename T, class allocator>
 class vector
@@ -119,7 +112,7 @@ class vector
 		{insert(begin(), count, val);}
 
 		template<class it_type>
-		vector(it_type first, it_type last, const allocator &alloc = allocator(), typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = NULL)
+		vector(it_type first, it_type last, const allocator &alloc = allocator(), typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
 			: _alloc(alloc), _arr(0), _len(0), _cap(0)
 		{insert(begin(), first, last);}
 
@@ -242,7 +235,7 @@ class vector
 		{return *(_arr + _len - 1);}
 
 		template<class it_type>
-		void assign(it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = NULL)
+		void assign(it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
 		{
 			size_type new_cap;
 
@@ -371,7 +364,7 @@ class vector
 		}
 
 		template<class it_type>
-		void insert(iterator position, it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = NULL)
+		void insert(iterator position, it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
 		{
 			iterator it;
 			size_type new_cap;
@@ -453,10 +446,10 @@ class vector
 			x._cap = _cap;
 			x._alloc = _alloc;
 
-			this->_arr = tmp_arr;
-			this->_len = tmp_len;
-			this->_cap = tmp_cap;
-			this->_alloc = tmp_alloc;
+			_arr = tmp_arr;
+			_len = tmp_len;
+			_cap = tmp_cap;
+			_alloc = tmp_alloc;
 		}
 
 		void clear()
@@ -470,7 +463,7 @@ class vector
 template<class T, class alloc>
 bool operator==(const vector<T, alloc>& lhs, const vector<T, alloc>& rhs)
 {
-	size_t i;
+	typename alloc::size_type i;
 
 	if (lhs.size() != rhs.size())
 		return false;
@@ -491,7 +484,7 @@ bool operator!=(const vector<T, alloc>& lhs, const vector<T, alloc>& rhs)
 template<class T, class alloc>
 bool operator<(const vector<T, alloc>& lhs, const vector<T, alloc>& rhs)
 {
-	size_t i;
+	typename alloc::size_type i;
 
 	i = 0;
 	while(lhs[i] == rhs[i] && i < lhs.size() && i < rhs.size())
@@ -527,4 +520,5 @@ void swap(vector<T,Alloc>& x, vector<T,Alloc>& y)
 {
 	x.swap(y);
 }
+
 #endif
