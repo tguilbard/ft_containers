@@ -6,7 +6,7 @@
 /*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/23 14:02:47 by user42            #+#    #+#             */
-/*   Updated: 2021/04/27 17:55:47 by user42           ###   ########.fr       */
+/*   Updated: 2021/04/28 10:51:01 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ class list
 		{return const_iterator(_node);}
 
 		bool empty() const
-		{return _len;}
+		{return !bool(_len);}
 		size_type size() const
 		{return _len;}
 		size_type max_size() const
