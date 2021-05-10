@@ -6,7 +6,7 @@
 /*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/22 11:02:03 by user42            #+#    #+#             */
-/*   Updated: 2021/04/22 11:11:14 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/10 11:45:27 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,39 @@ struct is_integral_type<unsigned long long int> : public is_integral_res<true, u
 
 template <typename T>
 struct is_integral : public is_integral_type<T> { };
+
+template <class T1, class T2>
+struct pair
+{
+	public :
+		typedef T1 first_type;
+		typedef T2 second_type;
+
+		first_type	first;
+		second_type	second;
+
+		pair()
+		: first(), second()
+		{}
+
+		template<class U, class V>
+		pair (const pair<U, V>& pr)
+		: first(pr.first), second(pr.second)
+		{}
+
+		pair (const first_type& a, const second_type& b)
+		: first(a), second(b)
+		{}
+
+		pair& operator= (const pair& pr)
+		{
+			if (this == &pr)
+				return (*this);
+			first = pr.first;
+			second = pr.second;
+			return (*this);
+		}
+};
 
 }
 
