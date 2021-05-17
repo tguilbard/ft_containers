@@ -14,21 +14,21 @@
 # define REVERS_HPP
 
 template<typename it>
-class reverse_iterator: public it
+class rvrs_iterator: public it
 {
 	public :
 		using typename it::value_type;
 		using typename it::pointer;
 		using typename it::reference;
 	private :
-		typedef reverse_iterator<it> self;
+		typedef rvrs_iterator<it> self;
 
 	public :
-		reverse_iterator(): it() {}
-		reverse_iterator(pointer ptr) : it(ptr) {}
-		reverse_iterator(const it &to_copy): it(to_copy) {}
-		reverse_iterator(const self &to_copy): it(to_copy) {}
-		~reverse_iterator() {}
+		rvrs_iterator(): it() {}
+		rvrs_iterator(pointer ptr) : it(ptr) {}
+		rvrs_iterator(const it &to_copy): it(to_copy) {}
+		rvrs_iterator(const self &to_copy): it(to_copy) {}
+		~rvrs_iterator() {}
 		self &operator++() {it::operator--(); return *this;}
 		self &operator++(int) {it::operator--(); return *this;}
 		self &operator--() {it::operator++(); return *this;}

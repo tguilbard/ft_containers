@@ -91,8 +91,8 @@ class vector
 		typedef typename allocator::const_pointer	const_pointer;
 		typedef vector_iterator<value_type>			iterator;
 		typedef vector_iterator<const value_type>	const_iterator;
-		typedef reverse_iterator<const_iterator>	const_reverse_iterator;
-		typedef reverse_iterator<iterator>			reverse_iterator;
+		typedef rvrs_iterator<const_iterator>	const_reverse_iterator;
+		typedef rvrs_iterator<iterator>			reverse_iterator;
 		typedef typename std::ptrdiff_t				difference_type;
 		typedef typename allocator::size_type		size_type;
 	
@@ -392,9 +392,9 @@ class vector
 			{
 				for(it = end(); it >= position; it--)
 					*(it + (last - first)) = *it;
+				_len += last - first;
 				for(; first != last; first++)
 					*(it++) = *first;
-				_len += last - first;
 			}
 		}
 

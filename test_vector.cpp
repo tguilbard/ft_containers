@@ -33,6 +33,7 @@ int main()
 	vector<int> foo (3,0);
 	vector<int> bar (5,0);
 
+
 	bar = foo;
 	foo = vector<int>();
 

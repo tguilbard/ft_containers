@@ -46,8 +46,8 @@ class map
 		typedef typename allocator_type::const_pointer						const_pointer;
 		typedef typename binary_tree<value_type, key_compare>::iterator	iterator;
 		typedef typename binary_tree<value_type, key_compare>::const_iterator const_iterator;
-		typedef reverse_iterator<const_iterator>							const_reverse_iterator;
-		typedef reverse_iterator<iterator>									reverse_iterator;
+		typedef rvrs_iterator<const_iterator>							const_reverse_iterator;
+		typedef rvrs_iterator<iterator>									reverse_iterator;
 		typedef typename std::ptrdiff_t										difference_type; 
 		typedef typename allocator_type::size_type							size_type;
 

@@ -88,16 +88,15 @@ class list
 		typedef typename allocator::const_pointer	const_pointer;
 		typedef list_iterator<value_type>			iterator;
 		typedef const_list_iterator<value_type>		const_iterator;
-		typedef reverse_iterator<const_iterator>	const_reverse_iterator;
-		typedef reverse_iterator<iterator>			reverse_iterator;
+		typedef rvrs_iterator<const_iterator>	const_reverse_iterator;
+		typedef rvrs_iterator<iterator>			reverse_iterator;
 		typedef typename std::ptrdiff_t				difference_type;
 		typedef typename allocator::size_type		size_type;
 	
 	private :
 		typedef list<T> self;
-		typedef node<T> node;
 	
-		node* _node;
+		node<T>* _node;
 		size_type _len;
 		allocator_type _alloc;
 
@@ -105,12 +104,12 @@ class list
 
 		explicit  list(const allocator_type& alloc = allocator_type())
 		: _node(0), _len(0), _alloc(alloc)
-		{_node = new node; _node->data = value_type(); _node->previous = _node; _node->next = _node;}
+		{_node = new node<T>; _node->data = value_type(); _node->previous = _node; _node->next = _node;}
 
 		explicit list(size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type())
 		: _node(0), _len(0), _alloc(alloc)
 		{
-			_node = new node; _node->data = value_type(); _node->previous = _node; _node->next = _node;
+			_node = new node<T>; _node->data = value_type(); _node->previous = _node; _node->next = _node;
 			insert(begin(), n, val);
 		}
 
@@ -118,14 +117,14 @@ class list
 		list(it_type first, it_type last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
 		: _node(0), _len(0), _alloc(alloc)
 		{
-			_node = new node; _node->data = value_type(); _node->previous = _node; _node->next = _node;
+			_node = new node<T>; _node->data = value_type(); _node->previous = _node; _node->next = _node;
 			insert(begin(), first, last);
 		}
 
 		list(const self& to_copy)
 		: _node(0), _len(0), _alloc(to_copy._alloc)
 		{
-			_node = new node; _node->data = value_type(); _node->previous = _node; _node->next = _node;
+			_node = new node<T>; _node->data = value_type(); _node->previous = _node; _node->next = _node;
 			insert(begin(), to_copy.begin(), to_copy.end());
 		}
 
@@ -190,7 +189,7 @@ class list
 
 		void pop_front()
 		{
-			node *tmp = _node->next;
+			node<T> *tmp = _node->next;
 
 			_node->next = _node->next->next;
 			_node->next->previous = _node;
@@ -201,7 +200,7 @@ class list
 
 		void push_front(const value_type& val)
 		{
-			node *new_node = new node;
+			node<T> *new_node = new node<T>;
 
 			new_node->data = val;
 			new_node->next =  _node->next;
@@ -213,7 +212,7 @@ class list
 
 		void push_back(const value_type& val)
 		{
-			node *new_node = new node;
+			node<T> *new_node = new node<T>;
 
 			new_node->data = val;
 			new_node->previous = _node->previous;
@@ -225,7 +224,7 @@ class list
 
 		void pop_back()
 		{
-			node *tmp = _node->previous;
+			node<T> *tmp = _node->previous;
 			_node->previous = tmp->previous;
 			tmp->previous->next = _node;
 			_alloc.destroy(&(tmp->data));
@@ -235,7 +234,7 @@ class list
 
 		iterator insert(iterator position, const value_type& val)
 		{
-			node *new_node = new node;
+			node<T> *new_node = new node<T>;
 
 			new_node->data = val;
 			new_node->previous = position->previous;
@@ -250,14 +249,14 @@ class list
 		{
 			if (n == 0)
 				return ;
-			node *new_node = new node;
+			node<T> *new_node = new node<T>;
 
 			new_node->data = val;
 			new_node->previous = position->previous;
 			new_node->previous->next = new_node;
 			for (size_type i = 1; i < n; i++)
 			{
-				node *tmp = new node;
+				node<T> *tmp = new node<T>;
 				tmp->data = val;
 				tmp->previous = new_node;
 				new_node->next = tmp;
@@ -273,7 +272,7 @@ class list
 		{
 			if (first == last)
 				return ;
-			node *new_node = new node;
+			node<T> *new_node = new node<T>;
 
 			new_node->data = *first;
 			new_node->previous = position->previous;
@@ -282,7 +281,7 @@ class list
 			_len++;
 			while (first != last)
 			{
-				node *tmp = new node;
+				node<T> *tmp = new node<T>;
 				tmp->data = *first;
 				tmp->previous = new_node;
 				new_node->next = tmp;
@@ -323,7 +322,7 @@ class list
 			if( x == *this)
 				return;
 
-			node *tmp_node = x._node;
+			node<T> *tmp_node = x._node;
 			size_type tmp_len = x._len;
 			allocator_type tmp_alloc = x._alloc;
 
@@ -377,7 +376,7 @@ class list
 
 		void splice(iterator position, list& x, iterator i)
 		{
-			node *adr = i->next->previous;
+			node<T> *adr = i->next->previous;
 			i->next->previous = i->previous;
 			i->previous->next = i->next;
 			x._len--;
@@ -513,7 +512,7 @@ class list
 		void sort()
 		{
 			iterator index = begin();
-			node *tmp;
+			node<T> *tmp;
 			while (index != rbegin())
 			{
 				if (index->data > index->next->data)
@@ -536,7 +535,7 @@ class list
 		void sort(Compare comp)
 		{
 			iterator index = begin();
-			node *tmp;
+			node<T> *tmp;
 			while (index != rbegin())
 			{
 				if (!comp(index->data, index->next->data))
@@ -558,7 +557,7 @@ class list
 		void reverse()
 		{
 			iterator index = begin();
-			node *tmp;
+			node<T> *tmp;
 
 			while (index != end())
 			{
