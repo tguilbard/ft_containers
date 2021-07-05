@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 09:30:28 by user42            #+#    #+#             */
-/*   Updated: 2021/07/05 11:41:33 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 12:28:03 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -327,6 +327,19 @@ int	main ()
 
 	std::cout << "upper bound points to: ";
 	std::cout << ret2.second->first << " => " << ret2.second->second << '\n';
+
+	//map get_allocator
+	int psize;
+	map<char,int> mymap16;
+	pair<const char,int>* p;
+
+	p=mymap16.get_allocator().allocate(5);
+
+	psize = sizeof(map<char,int>::value_type)*5;
+
+	std::cout << "The allocated array has a size of " << psize << " bytes.\n";
+
+	mymap16.get_allocator().deallocate(p,5);
 
 	clock_gettime(CLOCK_MONOTONIC, &end);
 	

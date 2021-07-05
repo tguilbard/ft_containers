@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/29 08:00:02 by user42            #+#    #+#             */
-/*   Updated: 2021/07/05 11:41:04 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 12:26:03 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,6 +210,8 @@ class map
 		ft::pair<iterator, iterator> equal_range (const key_type& k)
 		{return ft::pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));}
 
+		allocator_type get_allocator() const
+		{return _alloc;}
 };
 
 }

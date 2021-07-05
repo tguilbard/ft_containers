@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 12:11:36 by user42            #+#    #+#             */
-/*   Updated: 2021/07/04 21:46:55 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 12:24:27 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,6 +312,25 @@ int main()
 	for (unsigned i=0; i<myvector13.size(); i++)
 		std::cout << ' ' << myvector13[i];
 	std::cout << '\n';
+
+	//vector get_allocator
+	vector<int> myvector14;
+	int * p;
+	unsigned int j;
+
+	p = myvector14.get_allocator().allocate(5);
+
+	for (j=0; j<5; j++)
+		myvector14.get_allocator().construct(&p[j],j);
+
+	std::cout << "The allocated array contains:";
+	for (j=0; j<5; j++)
+		std::cout << ' ' << p[j];
+	std::cout << '\n';
+
+	for (j=0; j<5; j++)
+		myvector14.get_allocator().destroy(&p[j]);
+	myvector14.get_allocator().deallocate(p,5);
 
 	//vector relational operator
 	vector<int> foo4 (3,100);

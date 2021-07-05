@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/09 07:55:20 by user42            #+#    #+#             */
-/*   Updated: 2021/07/04 21:48:53 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 12:22:08 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 namespace ft
 {
 
-template<typename T, class allocator =std::allocator<T> >
+template<typename T, class Alloc = std::allocator<T> >
 class vector;
 
 template<typename T>
@@ -81,22 +81,22 @@ class vector_iterator : public Iterator_Trait
 
 };
 
-template<typename T, class allocator>
+template<typename T, class Alloc>
 class vector
 {
 	public:
 		typedef T 									value_type;
-		typedef allocator							allocator_type;
- 		typedef typename allocator::reference		reference;
-		typedef typename allocator::const_reference	const_reference;
-		typedef typename allocator::pointer			pointer;
-		typedef typename allocator::const_pointer	const_pointer;
+		typedef Alloc							allocator_type;
+ 		typedef typename Alloc::reference		reference;
+		typedef typename Alloc::const_reference	const_reference;
+		typedef typename Alloc::pointer			pointer;
+		typedef typename Alloc::const_pointer	const_pointer;
 		typedef vector_iterator<value_type>			iterator;
 		typedef vector_iterator<const value_type>	const_iterator;
 		typedef rvrs_iterator<const_iterator>	const_reverse_iterator;
 		typedef rvrs_iterator<iterator>			reverse_iterator;
 		typedef typename std::ptrdiff_t				difference_type;
-		typedef typename allocator::size_type		size_type;
+		typedef typename Alloc::size_type		size_type;
 	
 	private :
 		typedef vector<T> self;
@@ -107,14 +107,14 @@ class vector
 		size_type		_cap;
 
 	public :
-		explicit vector(const allocator &alloc = allocator()) : _alloc(alloc), _arr(0), _len(0), _cap(0) {}
+		explicit vector(const allocator_type& alloc = allocator_type()) : _alloc(alloc), _arr(0), _len(0), _cap(0) {}
 
-		explicit vector(size_type count, const value_type &val = value_type(), const allocator &alloc = allocator())
+		explicit vector(size_type count, const value_type &val = value_type(), const allocator_type& alloc = allocator_type())
 			: _alloc(alloc), _arr(0), _len(0), _cap(0)
 		{insert(begin(), count, val);}
 
 		template<class it_type>
-		vector(it_type first, it_type last, const allocator &alloc = allocator(), typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
+		vector(it_type first, it_type last, const allocator_type& alloc = allocator_type(), typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
 			: _alloc(alloc), _arr(0), _len(0), _cap(0)
 		{insert(begin(), first, last);}
 
@@ -477,6 +477,10 @@ class vector
 				_alloc.destroy(&(*it));
 			_len = 0;
 		}
+
+		allocator_type get_allocator() const
+		{return _alloc;}
+		
 };
 
 }
