@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/09 07:55:20 by user42            #+#    #+#             */
-/*   Updated: 2021/04/26 17:20:38 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/04 21:48:53 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,16 @@
 
 # include <memory>
 # include "utils.hpp"
+# include "iterator.hpp"
+
+namespace ft
+{
 
 template<typename T, class allocator =std::allocator<T> >
 class vector;
 
 template<typename T>
-class vector_iterator
+class vector_iterator : public Iterator_Trait
 {
 	public :
 		typedef T value_type;
@@ -76,8 +80,6 @@ class vector_iterator
 		{return _data - obj._data;}
 
 };
-
-# include "revers.hpp"
 
 template<typename T, class allocator>
 class vector
@@ -318,9 +320,14 @@ class vector
 			}
 			else
 			{
-				for(it = end(); it != position; it--)
+				it = end();
+				if (it != position)
+				{
+					it--;
+					for(; it != position; it--)
+						*(it + 1) = *it;
 					*(it + 1) = *it;
-				*(it + 1) = *it;
+				}
 				*it = val;
 			}
 			_len++;
@@ -354,9 +361,14 @@ class vector
 			}
 			else
 			{
-				for(it = end(); it > position; it--)
+				it = end();
+				if (it != position)
+				{
+					it--;
+					for(; it != position; it--)
+						*(it + n) = *it;
 					*(it + n) = *it;
-				*(it + n) = *it;
+				}
 				for(i = 0; i < n; i++)
 					*(it + i) = val;
 			}
@@ -367,12 +379,14 @@ class vector
 		void insert(iterator position, it_type first, it_type last, typename ft::enable_if<!ft::is_integral<it_type>::value, it_type>::type* = 0)
 		{
 			iterator it;
-			size_type new_cap;
+			size_type new_cap, size(0);
 
-			if (last - first + _len > _cap)
+			for (it_type tmp = first; tmp != last; tmp++)
+				size++;
+			if (size + _len > _cap)
 			{
 				new_cap = (_cap == 0) ? 1 : _cap * 2;
-				while (last - first  + _len > new_cap)
+				while (size  + _len > new_cap)
 					new_cap *= 2;
 				pointer tmp;
 				tmp =  _alloc.allocate(new_cap);
@@ -386,16 +400,24 @@ class vector
 				_alloc.deallocate(_arr, _cap);
 				_arr = tmp;
 				_cap = new_cap;
-				_len = i;
 			}
-			else if (last - first != 0)
+			else if (size != 0)
 			{
-				for(it = end(); it >= position; it--)
-					*(it + (last - first)) = *it;
-				_len += last - first;
+				it = end();
+				if (it != position)
+				{
+					it--;
+					for(; it != position; it--)
+						*(it + size) = *it;
+					*(it + size) = *it;
+				}
 				for(; first != last; first++)
-					*(it++) = *first;
+				{
+					*it = *first;
+					it++;
+				}
 			}
+			_len += size;
 		}
 
 		iterator erase(iterator position)
@@ -433,9 +455,6 @@ class vector
 
 		void swap(vector& x)
 		{
-			if (x == *this)
-				return;
-				
 			pointer tmp_arr = x._arr;
 			size_type tmp_len = x._len;
 			size_type tmp_cap = x._cap;
@@ -459,6 +478,10 @@ class vector
 			_len = 0;
 		}
 };
+
+}
+
+using namespace ft;
 
 template<class T, class alloc>
 bool operator==(const vector<T, alloc>& lhs, const vector<T, alloc>& rhs)

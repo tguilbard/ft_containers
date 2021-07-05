@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   map.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/29 08:00:02 by user42            #+#    #+#             */
-/*   Updated: 2021/05/10 12:06:13 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 11:41:04 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,11 @@
 
 # include "utils.hpp"
 # include "binary_tree.hpp"
-# include "revers.hpp"
+# include "iterator.hpp"
 
+namespace ft
+{
+	
 template<class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<ft::pair<const Key, T> > >
 class map
 {
@@ -116,18 +119,26 @@ class map
 		} 
 
 		ft::pair<iterator,bool> insert (const value_type& val)
-		{return _bt.insertPair(val);}
+		{
+			iterator node = find(val.first);
+			if (node != end())
+				return (ft::make_pair(node, false));
+			return _bt.insertPair(val);
+		}
+		
 		iterator insert (iterator position, const value_type& val)
 		{(void)position; return (_bt.insertPair(val).first);}
+
 		template <class InputIterator>
 		void insert (InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = 0)
 		{while (first != last) insert(*(first++));}
 
 		void erase (iterator position)
-		{erase((*position).first);}
+		{erase(position->first);}
+		
 		size_type erase (const key_type& k)
 		{
-			if (this->find(k) == this->end())
+			if (find(k) == end())
 				return (0);
 			_bt.removeByKey(ft::pair<key_type, mapped_type>(k, mapped_type()));
 			return (1);
@@ -135,9 +146,7 @@ class map
 		void erase (iterator first, iterator last)
 		{
 			while (first != last)
-			{
-				erase((*(first++)).first);
-			}
+				erase(first++);
 		}
 
 		void swap (map& x)
@@ -202,5 +211,7 @@ class map
 		{return ft::pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));}
 
 };
+
+}
 
 #endif

@@ -3,15 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   test_map.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 09:30:28 by user42            #+#    #+#             */
-/*   Updated: 2021/05/10 12:08:58 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 11:41:33 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "map.hpp"
+#include <vector>
+
+#ifndef TEST
+	#include <map>
+	using namespace std;
+#else
+	#include "map.hpp"
+	using namespace ft;
+#endif
 
 bool fncomp (char lhs, char rhs) {return lhs<rhs;}
 
@@ -22,6 +30,10 @@ bool	operator() (const char& lhs, const char& rhs) const
 
 int	main ()
 {
+	struct timespec start, end;
+	
+	clock_gettime(CLOCK_MONOTONIC, &start);
+
 	//map constructor
 	map<char,int> first;
 
@@ -125,19 +137,19 @@ int	main ()
 	//map insert
 	map<char,int> mymap7;
 
-	mymap7.insert ( ft::pair<char,int>('a',100) );
-	mymap7.insert ( ft::pair<char,int>('z',200) );
+	mymap7.insert (pair<char,int>('a',100) );
+	mymap7.insert (pair<char,int>('z',200) );
 
-	ft::pair<map<char,int>::iterator,bool> ret;
-	ret = mymap7.insert ( ft::pair<char,int>('z',500) );
+	pair<map<char,int>::iterator,bool> ret;
+	ret = mymap7.insert (pair<char,int>('z',500) );
 	if (ret.second==false) {
 		std::cout << "element 'z' already existed";
 		std::cout << " with a value of " << ret.first->second << '\n';
 	}
 
 	map<char,int>::iterator it = mymap.begin();
-	mymap7.insert (it, ft::pair<char,int>('b',300));
-	mymap7.insert (it, ft::pair<char,int>('c',400));
+	mymap7.insert (it, pair<char,int>('b',300));
+	mymap7.insert (it, pair<char,int>('c',400));
 
 	map<char,int> anothermap;
 	anothermap.insert(mymap7.begin(),mymap7.find('c'));
@@ -150,7 +162,7 @@ int	main ()
 	for (it=anothermap.begin(); it!=anothermap.end(); ++it)
 		std::cout << it->first << " => " << it->second << '\n';
 
-	//map insert erase
+	//map erase
 	map<char,int> mymap8;
 
 	mymap8['a']=10;
@@ -159,7 +171,7 @@ int	main ()
 	mymap8['d']=40;
 	mymap8['e']=50;
 	mymap8['f']=60;
-
+	
 	it=mymap8.find('b');
 	mymap8.erase (it);
 
@@ -168,8 +180,12 @@ int	main ()
 	it=mymap8.find ('e');
 	mymap8.erase ( it, mymap8.end() );
 
+	if (mymap8.find('a') == mymap8.end())
+		std::cout << "merde" << std::endl;
+		
 	for (it=mymap8.begin(); it!=mymap8.end(); ++it)
 		std::cout << it->first << " => " << it->second << '\n';
+
 
 	//map swap
 	map<char,int> foo,bar;
@@ -237,7 +253,7 @@ int	main ()
 
 	std::cout << "mymap11 contains:\n";
 
-	ft::pair<char,int> highest2 = *mymap11.rbegin();
+	pair<char,int> highest2 = *mymap11.rbegin();
 
 	it = mymap11.begin();
 	do {
@@ -303,7 +319,7 @@ int	main ()
 	mymap15['b']=20;
 	mymap15['c']=30;
 
-	ft::pair<map<char,int>::iterator,map<char,int>::iterator> ret2;
+	pair<map<char,int>::iterator,map<char,int>::iterator> ret2;
 	ret2 = mymap15.equal_range('b');
 
 	std::cout << "lower bound points to: ";
@@ -312,5 +328,13 @@ int	main ()
 	std::cout << "upper bound points to: ";
 	std::cout << ret2.second->first << " => " << ret2.second->second << '\n';
 
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	
+	double time_taken;
+	time_taken = (end.tv_sec - start.tv_sec) * 1e9;
+	time_taken = (time_taken + (end.tv_nsec - start.tv_nsec)) * 1e-9;
+	
+	std::cout << " execution time: " << std::fixed << time_taken << std::endl;
+	
 	return 0;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   binary_tree.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/04 11:02:13 by user42            #+#    #+#             */
-/*   Updated: 2021/05/10 11:29:21 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/05 11:41:15 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,13 @@
 # include <memory>
 # include <functional>
 # include "utils.hpp"
+# include "iterator.hpp"
+
+namespace ft
+{
 
 template <typename T, class Compare >
-class BT_iterator
+class BT_iterator : public Iterator_Trait
 {
 	public :
 		typedef typename T::value_type	value_type;
@@ -228,7 +232,7 @@ class binary_tree
 		}
 
 		void removeByKey(value_type to_remove)
-		{ _removeByKey(_last_node->parent, to_remove); }
+		{_removeByKey(_last_node->parent, to_remove);}
 
 		node_pointer searchByKey(value_type to_remove)
 		{
@@ -236,12 +240,12 @@ class binary_tree
 
 			while (node != _last_node)
 			{
-				if (node->data.first == to_remove.first)
-					return (node);
 				if (node->data.first > to_remove.first)
 					node = node->left;
-				else
+				else if  (node->data.first < to_remove.first)
 					node = node->right;
+				else
+					return (node);
 			}
 			return (node);
 		}
@@ -298,7 +302,8 @@ class binary_tree
 			_last_node->right = _BT_get_higher_node(_last_node->parent);
 			_size -= 1;
 
-			new_node->parent = node->parent;
+			if (new_node != _last_node)
+				new_node->parent = node->parent;
 
 			_node_alloc.destroy(node);
 			_node_alloc.deallocate(node, 1);
@@ -361,7 +366,7 @@ class binary_tree
 				_removeByKey(node->right, to_remove);
 				return ;
 			}
-
+			
 			if (node->left != _last_node && node->right != _last_node)
 			{
 				node_pointer successor = _BT_get_lower_node(node->right);
@@ -377,5 +382,6 @@ class binary_tree
 		}
 };
 
+}
 
 #endif

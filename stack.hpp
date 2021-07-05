@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   stack.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/28 10:26:52 by user42            #+#    #+#             */
-/*   Updated: 2021/04/28 11:17:08 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/04 20:44:47 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 
 # include <memory>
 # include "utils.hpp"
-# include "list.hpp"
+# include "vector.hpp"
 
-template <typename T, class Container = list<T> >
+template <typename T, class Container = vector<T> >
 class stack
 {
 	public :

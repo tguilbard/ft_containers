@@ -3,18 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   test_vector.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <tguilbar@student.42.fr>            +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/31 12:11:36 by user42            #+#    #+#             */
-/*   Updated: 2021/04/23 10:16:21 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/04 21:46:55 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "vector.hpp"
+
+#ifndef TEST
+	#include <vector>
+	using namespace std;
+#else
+	#include "vector.hpp"
+	using namespace ft;
+#endif
 
 int main()
 {
+	struct timespec start, end;
+	
+	clock_gettime(CLOCK_MONOTONIC, &start);
+
 	//vector constructor
 	vector<int> first;
 	vector<int> second (4, 100);
@@ -141,7 +152,6 @@ int main()
 	}
 
 	//vector operator[]
-
 	vector<int> myvector6 (10);
 
 	vector<int>::size_type sz2 = myvector6.size();
@@ -212,6 +222,7 @@ int main()
 	int mylist[] = {1776,7,4};
 	third2.assign (mylist,mylist+3);
 
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	std::cout << "Size of first2: " << int (first2.size()) << '\n';
 	std::cout << "Size of second2: " << int (second2.size()) << '\n';
 	std::cout << "Size of third2: " << int (third2.size()) << '\n';
@@ -329,5 +340,13 @@ int main()
 		std::cout << ' ' << *it;
 	std::cout << '\n';
 
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	
+	double time_taken;
+	time_taken = (end.tv_sec - start.tv_sec) * 1e9;
+	time_taken = (time_taken + (end.tv_nsec - start.tv_nsec)) * 1e-9;
+	
+	std::cout << " execution time: " << std::fixed << time_taken << std::endl;
+	
 	return 0;
 }
