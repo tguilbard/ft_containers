@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/04 11:02:13 by user42            #+#    #+#             */
-/*   Updated: 2021/07/05 11:41:15 by user42           ###   ########.fr       */
+/*   Updated: 2021/07/06 17:03:14 by tguilbar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ class binary_tree
 
 			while (start_node != _last_node)
 			{
-				int curkey = start_node->data.first;
+				typename value_type::first_type curkey = start_node->data.first;
 				if (curkey == to_insert.first)
 					return (ft::pair<iterator, bool>(iterator(start_node, _last_node), false));
 				prev_node = start_node;
